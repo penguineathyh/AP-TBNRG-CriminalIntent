@@ -9,7 +9,7 @@ class CrimeListViewModel : ViewModel() {
     val crimes: MutableList<Crime> by lazy {
         val list = mutableListOf<Crime>()
         for (i in 0 until 100) {
-            list += Crime(title = "Crime #$i", isSolved = i % 2 == 0)
+            list += Crime(title = "Crime #$i", isSolved = i % 2 == 0, requirePolice = i%2 != 0)
         }
         list
     }

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.criminalintent.R
 import com.example.criminalintent.add
 import com.example.criminalintent.ui.CrimeFragment.Companion.TAG_CRIME_FRAGMENT
+import com.example.criminalintent.ui.CrimeListFragment.Companion.TAG_CRIME_LIST_FRAGMENT
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.add(
             R.id.fragment_container,
             CrimeListFragment.newInstance(),
-            TAG_CRIME_FRAGMENT
+            TAG_CRIME_LIST_FRAGMENT
         )
     }
 }

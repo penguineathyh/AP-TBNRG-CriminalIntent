@@ -1,6 +1,5 @@
 package com.example.criminalintent.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import com.example.criminalintent.CrimeListViewModel
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
-import java.util.zip.Inflater
 import kotlin.properties.Delegates
 
 class CrimeListFragment private constructor() : Fragment() {
@@ -35,7 +33,7 @@ class CrimeListFragment private constructor() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
         crimeListRecyclerView = view.rv_crime_list
-        crimeListAdapter = Adapter(requireContext()).also {
+        crimeListAdapter = Adapter().also {
             it.crimes = viewModel.crimes
             crimeListRecyclerView.adapter = it
             crimeListRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -44,17 +42,23 @@ class CrimeListFragment private constructor() : Fragment() {
         return view
     }
 
-    private class Adapter(val context:Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
             DiffUtil.calculateDiff(DiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            return ViewHolder(
-                LayoutInflater.from(context)
-                    .inflate(R.layout.item_crime_list, parent, false)
-            )
+            return when (viewType) {
+                VIEW_TYPE_REQUIRE_POLICE -> RequirePoliceViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_crime_list_require_police, parent, false)
+                )
+                else -> DefaultViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_crime_list_default, parent, false)
+                )
+            }
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -65,15 +69,34 @@ class CrimeListFragment private constructor() : Fragment() {
             return crimes.size
         }
 
-        private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            private val crimeTitle:TextView = view.findViewById(R.id.text_view_item_crime_title)
-            private val crimeDate:TextView = view.findViewById(R.id.text_view_item_crime_date)
+        override fun getItemViewType(position: Int): Int {
+            return if (crimes[position].requirePolice) VIEW_TYPE_REQUIRE_POLICE
+            else VIEW_TYPE_DEFAULT
+        }
 
-            fun bind(crime:Crime){
+        private abstract class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            abstract fun bind(crime: Crime)
+        }
+
+        private class DefaultViewHolder(view: View) : ViewHolder(view) {
+            private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
+            private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
+
+            override fun bind(crime: Crime) {
                 crimeTitle.text = crime.title
                 crimeDate.text = crime.date.toString()
             }
         }
+
+        private class RequirePoliceViewHolder(view: View) : ViewHolder(view) {
+            private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
+//            private val requirePolice: Button = view.findViewById(R.id.button_item_require_police)
+
+            override fun bind(crime: Crime) {
+                crimeTitle.text = crime.title
+            }
+        }
+
 
         private class DiffCallback(
             val oldList: List<Crime>,
@@ -91,6 +114,11 @@ class CrimeListFragment private constructor() : Fragment() {
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 return oldList[oldItemPosition] == newList[newItemPosition]
             }
+        }
+
+        companion object {
+            private const val VIEW_TYPE_DEFAULT = 0
+            private const val VIEW_TYPE_REQUIRE_POLICE = 1
         }
     }
 
