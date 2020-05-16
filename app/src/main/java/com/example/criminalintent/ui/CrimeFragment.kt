@@ -10,17 +10,20 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
-import kotlinx.android.synthetic.main.fragment_crime.view.*
+import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
+import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
+import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
 
-class CrimeFragment:Fragment() {
+class CrimeFragment : Fragment() {
 
-    private lateinit var crime:Crime
+    private lateinit var crime: Crime
 
-    private lateinit var crimeTitleEditText:EditText
-    private lateinit var crimeDateButton:Button
-    private lateinit var crimeSolvedCheckBox:CheckBox
+    private lateinit var crimeTitleEditText: EditText
+    private lateinit var crimeDateButton: Button
+    private lateinit var crimeSolvedCheckBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +39,7 @@ class CrimeFragment:Fragment() {
 
         crimeTitleEditText = view.edit_text_crime_title
         crimeDateButton = view.button_crime_date.also {
-            it.text = crime.date
+            it.text = DateUtil.format(crime.date)
             it.isEnabled = false
         }
         crimeSolvedCheckBox = view.checkbox_crime_solved
@@ -47,7 +50,7 @@ class CrimeFragment:Fragment() {
     override fun onStart() {
         super.onStart()
 
-        val titleWatcher = object :TextWatcher{
+        val titleWatcher = object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 //
@@ -69,7 +72,7 @@ class CrimeFragment:Fragment() {
         }
     }
 
-    companion object{
+    companion object {
         const val TAG_CRIME_FRAGMENT = "crime.fragment"
     }
 

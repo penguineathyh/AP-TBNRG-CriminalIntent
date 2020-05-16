@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.criminalintent.CrimeListViewModel
+import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
@@ -80,7 +81,7 @@ class CrimeListFragment private constructor() : Fragment() {
 
             fun bind(crime: Crime) {
                 crimeTitle.text = crime.title
-                crimeDate.text = crime.date
+                crimeDate.text = DateUtil.format(crime.date)
                 crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
             }
         }

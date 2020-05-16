@@ -20,5 +20,5 @@ object DateUtil {
         sdf
     }
 
-    fun currentDate(): String = df.format(Date())
+    fun format(date: Date) = df.format(date)
 }
