@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,7 +16,6 @@ import com.example.criminalintent.CrimeListViewModel
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
-import java.util.zip.Inflater
 import kotlin.properties.Delegates
 
 class CrimeListFragment private constructor() : Fragment() {
@@ -44,7 +44,7 @@ class CrimeListFragment private constructor() : Fragment() {
         return view
     }
 
-    private class Adapter(val context:Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private class Adapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
             DiffUtil.calculateDiff(DiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
@@ -66,12 +66,15 @@ class CrimeListFragment private constructor() : Fragment() {
         }
 
         private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            private val crimeTitle:TextView = view.findViewById(R.id.text_view_item_crime_title)
-            private val crimeDate:TextView = view.findViewById(R.id.text_view_item_crime_date)
+            private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
+            private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
+            private val crimeSolved: ImageView =
+                view.findViewById(R.id.image_view_item_crime_solved)
 
-            fun bind(crime:Crime){
+            fun bind(crime: Crime) {
                 crimeTitle.text = crime.title
                 crimeDate.text = crime.date.toString()
+                crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
             }
         }
 
