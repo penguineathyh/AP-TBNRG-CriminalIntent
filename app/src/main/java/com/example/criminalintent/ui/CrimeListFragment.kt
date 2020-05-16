@@ -1,6 +1,5 @@
 package com.example.criminalintent.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +25,7 @@ class CrimeListFragment private constructor() : Fragment() {
     }
 
     private lateinit var crimeListRecyclerView: RecyclerView
-    private lateinit var crimeListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    private lateinit var crimeListAdapter: Adapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,8 +35,7 @@ class CrimeListFragment private constructor() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
         crimeListRecyclerView = view.rv_crime_list
-        crimeListAdapter = Adapter(requireContext()).also {
-            it.crimes = viewModel.crimes
+        crimeListAdapter = Adapter().also {
             crimeListRecyclerView.adapter = it
             crimeListRecyclerView.layoutManager = LinearLayoutManager(context)
         }
@@ -44,7 +43,15 @@ class CrimeListFragment private constructor() : Fragment() {
         return view
     }
 
-    private class Adapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.crimeListLiveData.observe(
+            viewLifecycleOwner,
+            Observer { crimes -> crimes?.let { crimeListAdapter.crimes = it } }
+        )
+    }
+
+    private class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
             DiffUtil.calculateDiff(DiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
@@ -52,7 +59,7 @@ class CrimeListFragment private constructor() : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return ViewHolder(
-                LayoutInflater.from(context)
+                LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_crime_list, parent, false)
             )
         }

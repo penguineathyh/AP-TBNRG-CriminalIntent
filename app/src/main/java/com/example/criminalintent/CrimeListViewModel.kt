@@ -2,17 +2,12 @@ package com.example.criminalintent
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.criminalintent.database.CrimeRepository
 import com.example.criminalintent.model.Crime
 
 class CrimeListViewModel : ViewModel() {
 
-    val crimes: MutableList<Crime> by lazy {
-        val list = mutableListOf<Crime>()
-        for (i in 0 until 100) {
-            list += Crime(title = "Crime #$i", isSolved = i % 2 == 0)
-        }
-        list
-    }
+    val crimeListLiveData = CrimeRepository.instance.getCrimes()
 
     override fun onCleared() {
         super.onCleared()

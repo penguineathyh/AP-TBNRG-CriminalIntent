@@ -1,6 +1,7 @@
 package com.example.criminalintent.database
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.example.criminalintent.model.Crime
 import java.util.UUID
@@ -12,6 +13,12 @@ class CrimeRepository private constructor() {
         database.crimeDao()
     }
 
+//    val MIGRATION_1_2 = object : Migration(1, 2) {
+//        override fun migrate(database: SupportSQLiteDatabase) {
+//            //
+//        }
+//    }
+
     fun initialize(context: Context) {
         database = Room.databaseBuilder(
             context,
@@ -20,9 +27,9 @@ class CrimeRepository private constructor() {
         ).build()
     }
 
-    fun getCrimes(): List<Crime> = crimeDao.getCrimes()
+    fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
 
-    fun getCrime(id: UUID): Crime? = crimeDao.getCrime(id)
+    fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 
     private object CrimeRepositoryHolder {
         val crimeRepository = CrimeRepository()

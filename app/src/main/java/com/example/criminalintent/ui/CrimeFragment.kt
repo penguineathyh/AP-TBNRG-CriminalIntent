@@ -36,7 +36,7 @@ class CrimeFragment:Fragment() {
 
         crimeTitleEditText = view.edit_text_crime_title
         crimeDateButton = view.button_crime_date.also {
-            it.text = crime.date.toString()
+            it.text = crime.date
             it.isEnabled = false
         }
         crimeSolvedCheckBox = view.checkbox_crime_solved
