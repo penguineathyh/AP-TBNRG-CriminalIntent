@@ -58,9 +58,7 @@ class CrimeListFragment private constructor() : Fragment() {
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            holder as ViewHolder
-            holder.crimeTitle.text = crimes[position].title
-            holder.crimeDate.text = crimes[position].date.toString()
+            (holder as ViewHolder).bind(crimes[position])
         }
 
         override fun getItemCount(): Int {
@@ -68,8 +66,13 @@ class CrimeListFragment private constructor() : Fragment() {
         }
 
         private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val crimeTitle:TextView = view.findViewById(R.id.text_view_item_crime_title)
-            val crimeDate:TextView = view.findViewById(R.id.text_view_item_crime_date)
+            private val crimeTitle:TextView = view.findViewById(R.id.text_view_item_crime_title)
+            private val crimeDate:TextView = view.findViewById(R.id.text_view_item_crime_date)
+
+            fun bind(crime:Crime){
+                crimeTitle.text = crime.title
+                crimeDate.text = crime.date.toString()
+            }
         }
 
         private class DiffCallback(
