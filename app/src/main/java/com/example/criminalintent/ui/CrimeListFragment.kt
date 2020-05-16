@@ -73,7 +73,7 @@ class CrimeListFragment private constructor() : Fragment() {
 
             fun bind(crime: Crime) {
                 crimeTitle.text = crime.title
-                crimeDate.text = crime.date.toString()
+                crimeDate.text = crime.date
                 crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
             }
         }
