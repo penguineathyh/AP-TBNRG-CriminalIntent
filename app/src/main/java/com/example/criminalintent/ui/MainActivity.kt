@@ -12,8 +12,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportFragmentManager.add(
-            R.id.fragment_container_crime_fragment,
-            CrimeFragment(),
+            R.id.fragment_container,
+            CrimeListFragment.newInstance(),
             TAG_CRIME_FRAGMENT
         )
     }

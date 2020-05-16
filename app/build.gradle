@@ -37,7 +37,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // Life cycle extensions
-
     def lifecycle_version = "2.2.0"
     def arch_version = "2.1.0"
 
@@ -53,4 +52,7 @@ dependencies {
 
     // Annotation processor
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+
+    // RecyclerView
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
