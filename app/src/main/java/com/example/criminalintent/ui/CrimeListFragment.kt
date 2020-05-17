@@ -17,9 +17,18 @@ import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
+import java.util.UUID
 import kotlin.properties.Delegates
 
 class CrimeListFragment private constructor() : Fragment() {
+
+    /**
+     * Let hosting activity implement this.
+     * By this, hosting activity can have its own inner fragment managing business.
+     */
+    interface Callbacks {
+        fun onCrimeSelected(crimeId: UUID)
+    }
 
     private val viewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
@@ -52,7 +61,19 @@ class CrimeListFragment private constructor() : Fragment() {
         )
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        crimeListAdapter.callbacks = activity as? Callbacks
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        crimeListAdapter.callbacks = null
+    }
+
     private class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+        var callbacks: Callbacks? = null
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
             DiffUtil.calculateDiff(DiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
@@ -61,7 +82,8 @@ class CrimeListFragment private constructor() : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return ViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_crime_list, parent, false)
+                    .inflate(R.layout.item_crime_list, parent, false),
+                callbacks
             )
         }
 
@@ -73,13 +95,24 @@ class CrimeListFragment private constructor() : Fragment() {
             return crimes.size
         }
 
-        private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private class ViewHolder(view: View, callbacks: Callbacks?) :
+            RecyclerView.ViewHolder(view) {
             private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
             private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
             private val crimeSolved: ImageView =
                 view.findViewById(R.id.image_view_item_crime_solved)
 
+            private lateinit var crime: Crime
+            private val crimeId: UUID get() = crime.id
+
+            init {
+                view.setOnClickListener {
+                    callbacks?.onCrimeSelected(crimeId)
+                }
+            }
+
             fun bind(crime: Crime) {
+                this.crime = crime
                 crimeTitle.text = crime.title
                 crimeDate.text = DateUtil.format(crime.date)
                 crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE

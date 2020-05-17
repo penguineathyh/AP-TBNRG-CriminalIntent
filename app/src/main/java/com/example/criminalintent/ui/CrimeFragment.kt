@@ -3,6 +3,7 @@ package com.example.criminalintent.ui
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +11,24 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.criminalintent.CrimeDetailViewModel
 import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
+import java.util.UUID
 
-class CrimeFragment : Fragment() {
+class CrimeFragment private constructor() : Fragment() {
 
     private lateinit var crime: Crime
+
+    private val viewModel: CrimeDetailViewModel by lazy {
+        ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
+    }
 
     private lateinit var crimeTitleEditText: EditText
     private lateinit var crimeDateButton: Button
@@ -27,7 +36,8 @@ class CrimeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        crime = Crime()
+        val crimeId = requireArguments().getSerializable(ARG_CRIME_ID) as UUID
+        viewModel.loadCrime(crimeId)
     }
 
     override fun onCreateView(
@@ -39,12 +49,24 @@ class CrimeFragment : Fragment() {
 
         crimeTitleEditText = view.edit_text_crime_title
         crimeDateButton = view.button_crime_date.also {
-            it.text = DateUtil.format(crime.date)
             it.isEnabled = false
         }
         crimeSolvedCheckBox = view.checkbox_crime_solved
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.crimeLiveData.observe(
+            viewLifecycleOwner,
+            Observer { crime ->
+                crime?.let {
+                    this.crime = crime
+                    updateUI()
+                }
+            }
+        )
     }
 
     override fun onStart() {
@@ -72,8 +94,32 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        viewModel.saveCrime(crime)
+    }
+
+    private fun updateUI() {
+        crimeTitleEditText.setText(crime.title)
+        crimeDateButton.text = DateUtil.format(crime.date)
+        crimeSolvedCheckBox.let {
+            it.isChecked = crime.isSolved
+            it.jumpDrawablesToCurrentState()
+        }
+    }
+
     companion object {
-        const val TAG_CRIME_FRAGMENT = "crime.fragment"
+
+        private const val TAG = "crime.fragment"
+        private const val ARG_CRIME_ID = "crime.id"
+
+        fun newInstance(crimeId: UUID): CrimeFragment {
+            Log.d(TAG, "CrimeFragment Instance: crimeId = $crimeId")
+            val args = Bundle().also {
+                it.putSerializable(ARG_CRIME_ID, crimeId)
+            }
+            return CrimeFragment().also { it.arguments = args }
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.example.criminalintent.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import com.example.criminalintent.SingleThreadPoster
 import com.example.criminalintent.model.Crime
 import java.util.UUID
 
@@ -30,6 +31,18 @@ class CrimeRepository private constructor() {
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
 
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
+
+    fun updateCrime(crime: Crime) {
+        SingleThreadPoster.post {
+            crimeDao.updateCrime(crime)
+        }
+    }
+
+    fun addCrime(crime: Crime) {
+        SingleThreadPoster.post {
+            crimeDao.addCrime(crime)
+        }
+    }
 
     private object CrimeRepositoryHolder {
         val crimeRepository = CrimeRepository()
