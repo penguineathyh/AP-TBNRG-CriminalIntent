@@ -30,6 +30,8 @@ class CrimeListFragment : Fragment() {
         fun onCrimeSelected(crimeId: UUID)
     }
 
+    private var callbacks: Callbacks? = null
+
     private val viewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
     }
@@ -63,17 +65,15 @@ class CrimeListFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        crimeListAdapter.callbacks = activity as? Callbacks
+        callbacks = activity as? Callbacks
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        crimeListAdapter.callbacks = null
+        callbacks = null
     }
 
-    private class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-        var callbacks: Callbacks? = null
+    private inner class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
             DiffUtil.calculateDiff(DiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
@@ -94,47 +94,47 @@ class CrimeListFragment : Fragment() {
         override fun getItemCount(): Int {
             return crimes.size
         }
+    }
 
-        private class ViewHolder(view: View, callbacks: Callbacks?) :
-            RecyclerView.ViewHolder(view) {
-            private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
-            private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
-            private val crimeSolved: ImageView =
-                view.findViewById(R.id.image_view_item_crime_solved)
+    private class ViewHolder(view: View, callbacks: Callbacks?) :
+        RecyclerView.ViewHolder(view) {
+        private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
+        private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
+        private val crimeSolved: ImageView =
+            view.findViewById(R.id.image_view_item_crime_solved)
 
-            private lateinit var crime: Crime
-            private val crimeId: UUID get() = crime.id
+        private lateinit var crime: Crime
+        private val crimeId: UUID get() = crime.id
 
-            init {
-                view.setOnClickListener {
-                    callbacks?.onCrimeSelected(crimeId)
-                }
-            }
-
-            fun bind(crime: Crime) {
-                this.crime = crime
-                crimeTitle.text = crime.title
-                crimeDate.text = DateUtil.format(crime.date)
-                crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+        init {
+            view.setOnClickListener {
+                callbacks?.onCrimeSelected(crimeId)
             }
         }
 
-        private class DiffCallback(
-            val oldList: List<Crime>,
-            val newList: List<Crime>
-        ) : DiffUtil.Callback() {
+        fun bind(crime: Crime) {
+            this.crime = crime
+            crimeTitle.text = crime.title
+            crimeDate.text = DateUtil.format(crime.date)
+            crimeSolved.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+        }
+    }
 
-            override fun getOldListSize(): Int = oldList.size
+    private class DiffCallback(
+        val oldList: List<Crime>,
+        val newList: List<Crime>
+    ) : DiffUtil.Callback() {
 
-            override fun getNewListSize(): Int = newList.size
+        override fun getOldListSize(): Int = oldList.size
 
-            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return oldList[oldItemPosition].id == newList[newItemPosition].id
-            }
+        override fun getNewListSize(): Int = newList.size
 
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return oldList[oldItemPosition] == newList[newItemPosition]
-            }
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 
