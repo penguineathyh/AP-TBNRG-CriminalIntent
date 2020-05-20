@@ -17,6 +17,7 @@ import com.example.criminalintent.CrimeDetailViewModel
 import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
+import com.example.criminalintent.ui.DatePickerFragment.Companion.DIALOG_TAG_DATE_PICKER
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
@@ -48,9 +49,7 @@ class CrimeFragment private constructor() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
         crimeTitleEditText = view.edit_text_crime_title
-        crimeDateButton = view.button_crime_date.also {
-            it.isEnabled = false
-        }
+        crimeDateButton = view.button_crime_date
         crimeSolvedCheckBox = view.checkbox_crime_solved
 
         return view
@@ -91,6 +90,13 @@ class CrimeFragment private constructor() : Fragment() {
 
         crimeSolvedCheckBox.setOnCheckedChangeListener { _, isChecked ->
             crime = crime.copy(isSolved = isChecked)
+        }
+
+        crimeDateButton.setOnClickListener {
+            DatePickerFragment().show(
+                this@CrimeFragment.requireFragmentManager(),
+                DIALOG_TAG_DATE_PICKER
+            )
         }
     }
 
