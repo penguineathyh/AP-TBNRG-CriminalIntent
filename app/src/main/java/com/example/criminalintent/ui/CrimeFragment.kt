@@ -20,9 +20,10 @@ import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
+import java.util.Date
 import java.util.UUID
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
 
@@ -92,10 +93,7 @@ class CrimeFragment : Fragment() {
         }
 
         crimeDateButton.setOnClickListener {
-            DatePickerFragment.showDialogWithGivenDate(
-                this@CrimeFragment.requireFragmentManager(),
-                crime.date
-            )
+            showDatePickerFragmentForResult()
         }
     }
 
@@ -113,10 +111,22 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    private fun showDatePickerFragmentForResult() {
+        val fragment =
+            DatePickerFragment.showDialogWithGivenDate(requireFragmentManager(), crime.date)
+        fragment.setTargetFragment(this, REQUEST_CODE_DATE)
+    }
+
+    override fun onDateSelected(date: Date) {
+        crime = crime.copy(date = date)
+        updateUI()
+    }
+
     companion object {
 
         private const val TAG = "crime.fragment"
         private const val ARG_CRIME_ID = "crime.id"
+        private const val REQUEST_CODE_DATE = 0
 
         fun newInstance(crimeId: UUID): CrimeFragment {
             Log.d(TAG, "CrimeFragment Instance: crimeId = $crimeId")
