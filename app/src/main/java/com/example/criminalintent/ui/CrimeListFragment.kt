@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
 import java.util.UUID
 import kotlin.properties.Delegates
 
-class CrimeListFragment private constructor() : Fragment() {
+class CrimeListFragment : Fragment() {
 
     /**
      * Let hosting activity implement this.

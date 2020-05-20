@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
 import java.util.UUID
 
-class CrimeFragment private constructor() : Fragment() {
+class CrimeFragment : Fragment() {
 
     private lateinit var crime: Crime
 

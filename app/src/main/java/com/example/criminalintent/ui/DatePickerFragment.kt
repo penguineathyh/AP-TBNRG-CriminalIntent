@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentManager
 import java.util.Calendar
 import java.util.Date
 
-class DatePickerFragment private constructor() : DialogFragment() {
+class DatePickerFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val date = requireArguments().getSerializable(ARG_CRIME_DATE) as Date
