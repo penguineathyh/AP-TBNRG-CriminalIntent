@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -19,7 +20,9 @@ import com.example.criminalintent.CrimeListViewModel
 import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
+import kotlinx.android.synthetic.main.fragment_crime_list.view.button_add_crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
+import kotlinx.android.synthetic.main.fragment_crime_list.view.text_view_no_crimes
 import java.util.UUID
 import kotlin.properties.Delegates
 
@@ -41,6 +44,8 @@ class CrimeListFragment : Fragment() {
 
     private lateinit var crimeListRecyclerView: RecyclerView
     private lateinit var crimeListAdapter: Adapter
+    private lateinit var notifyNoCrimeTextView: TextView
+    private lateinit var notifyNoCrimeButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +65,11 @@ class CrimeListFragment : Fragment() {
             crimeListRecyclerView.layoutManager = LinearLayoutManager(context)
         }
 
+        notifyNoCrimeTextView = view.text_view_no_crimes
+        notifyNoCrimeButton = view.button_add_crime.also {
+            it.setOnClickListener { createCrimeAndGoToDetail() }
+        }
+
         return view
     }
 
@@ -68,6 +78,10 @@ class CrimeListFragment : Fragment() {
         viewModel.crimeListLiveData.observe(
             viewLifecycleOwner,
             Observer { crimes -> crimes?.let { crimeListAdapter.crimes = it } }
+        )
+        viewModel.noCrimeLiveData.observe(
+            viewLifecycleOwner,
+            Observer { updateNoCrimeNotification(it) }
         )
     }
 
@@ -89,12 +103,28 @@ class CrimeListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_item_new_crime -> {
-                val crime = Crime()
-                viewModel.addCrime(crime)
-                callbacks?.onCrimeSelected(crime.id)
+                createCrimeAndGoToDetail()
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun createCrimeAndGoToDetail() {
+        val crime = Crime()
+        viewModel.addCrime(crime)
+        callbacks?.onCrimeSelected(crime.id)
+    }
+
+    private fun updateNoCrimeNotification(noCrime: Boolean) {
+        if (noCrime) {
+            crimeListRecyclerView.visibility = View.GONE
+            notifyNoCrimeTextView.visibility = View.VISIBLE
+            notifyNoCrimeButton.visibility = View.VISIBLE
+        } else {
+            crimeListRecyclerView.visibility = View.VISIBLE
+            notifyNoCrimeTextView.visibility = View.GONE
+            notifyNoCrimeButton.visibility = View.GONE
         }
     }
 

@@ -7,4 +7,6 @@
     <string name="crime_solved_label">Solved</string>
 
     <string name="menu_item_new_crime">New Crime</string>
+
+    <string name="text_no_crime">There are no crimes. You can add the first.</string>
 </resources>
