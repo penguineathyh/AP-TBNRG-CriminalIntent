@@ -60,6 +60,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         viewModel.crimeLiveData.observe(
             viewLifecycleOwner,
             Observer { crime ->
+                Log.d(TAG, "update crime:$crime")
                 crime?.let {
                     this.crime = crime
                     updateUI()

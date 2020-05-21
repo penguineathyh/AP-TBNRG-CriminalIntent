@@ -9,6 +9,10 @@ class CrimeListViewModel : ViewModel() {
 
     val crimeListLiveData = CrimeRepository.instance.getCrimes()
 
+    fun addCrime(crime: Crime){
+        CrimeRepository.instance.addCrime(crime)
+    }
+
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "crimeListViewModel:$this call onCleared()")
