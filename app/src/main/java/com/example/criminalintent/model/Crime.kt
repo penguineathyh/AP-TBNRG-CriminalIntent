@@ -17,12 +17,14 @@ data class Crime(
     val suspect: String = ""
 ) {
 
+    val hasSuspect get() = !suspect.isBlank()
+
     fun generateReport(): String {
         val solvedString =
             StringGetter.getString(if (isSolved) R.string.text_report_solved else R.string.text_report_unsolved)
         val dateString = DateUtil.format(date)
         val suspect =
-            if (!suspect.isBlank()) StringGetter.getStringWithArgs(
+            if (hasSuspect) StringGetter.getStringWithArgs(
                 R.string.text_report_suspect,
                 suspect
             )
