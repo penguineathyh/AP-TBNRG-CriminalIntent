@@ -2,6 +2,7 @@ package com.example.criminalintent.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -114,6 +115,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             startActivityForResult(pickContactIntent, REQUEST_CODE_CONTACT)
         }
 
+        checkContactsAppExistence()
+
         requireView().button_send_crime_report.setOnClickListener {
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -184,6 +187,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         val fragment =
             DatePickerFragment.showDialogWithGivenDate(requireFragmentManager(), crime.date)
         fragment.setTargetFragment(this, REQUEST_CODE_DATE)
+    }
+
+    private fun checkContactsAppExistence() {
+        val packageManager = requireActivity().packageManager
+        val result =
+            packageManager.resolveActivity(pickContactIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        result ?: run { chooseSuspectButton.isEnabled = false }
     }
 
     override fun onDateSelected(date: Date) {
