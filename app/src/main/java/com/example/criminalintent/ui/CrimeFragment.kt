@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,6 +18,7 @@ import com.example.criminalintent.CrimeDetailViewModel
 import com.example.criminalintent.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
+import kotlinx.android.synthetic.main.fragment_crime.view.button_choose_suspect
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
@@ -95,6 +97,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         crimeDateButton.setOnClickListener {
             showDatePickerFragmentForResult()
+        }
+
+        requireView().button_choose_suspect.setOnClickListener {
+            Toast.makeText(requireContext(), crime.generateReport(), Toast.LENGTH_LONG).show()
         }
     }
 

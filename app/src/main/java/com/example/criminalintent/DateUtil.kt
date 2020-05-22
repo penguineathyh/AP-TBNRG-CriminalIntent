@@ -7,7 +7,7 @@ import java.util.Date
 object DateUtil {
 
     // for example, "Monday, Jul 22, 2019."
-    private const val PATTERN = "EEEE, MMM d, yyyy."
+    private const val PATTERN = "EEEE, MMM d, yyyy"
 
     private val df: DateFormat by lazy {
         val sdf = DateFormat.getDateInstance()
