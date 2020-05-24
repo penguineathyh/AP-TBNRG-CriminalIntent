@@ -15,6 +15,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -25,9 +27,11 @@ import com.example.criminalintent.StringGetter
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime.view.button_choose_suspect
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
+import kotlinx.android.synthetic.main.fragment_crime.view.button_open_camera
 import kotlinx.android.synthetic.main.fragment_crime.view.button_send_crime_report
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
+import kotlinx.android.synthetic.main.fragment_crime.view.image_view_crime_photo
 import java.util.Date
 import java.util.UUID
 
@@ -39,6 +43,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
     }
 
+    private lateinit var crimeImageView:ImageView
+    private lateinit var cameraButton:ImageButton
     private lateinit var crimeTitleEditText: EditText
     private lateinit var crimeDateButton: Button
     private lateinit var crimeSolvedCheckBox: CheckBox
@@ -60,6 +66,9 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
+
+        crimeImageView = view.image_view_crime_photo
+        cameraButton = view.button_open_camera
 
         crimeTitleEditText = view.edit_text_crime_title
         crimeDateButton = view.button_crime_date
