@@ -38,4 +38,6 @@ data class Crime(
             suspect
         )
     }
+
+    val photoFileName get() = "IMG_$id.jpg"
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.example.criminalintent.SingleThreadPoster
 import com.example.criminalintent.model.Crime
+import java.io.File
 import java.util.UUID
 
 class CrimeRepository private constructor() {
@@ -13,6 +14,8 @@ class CrimeRepository private constructor() {
     private val crimeDao: CrimeDao by lazy {
         database.crimeDao()
     }
+
+    private lateinit var filesDir: File
 
 //    val MIGRATION_1_2 = object : Migration(1, 2) {
 //        override fun migrate(database: SupportSQLiteDatabase) {
@@ -27,6 +30,8 @@ class CrimeRepository private constructor() {
             DATABASE_NAME
         ).addMigrations(migration_1_2)
             .build()
+
+        filesDir = context.applicationContext.filesDir
     }
 
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
@@ -44,6 +49,8 @@ class CrimeRepository private constructor() {
             crimeDao.addCrime(crime)
         }
     }
+
+    fun getPhotoFile(crime: Crime) = File(filesDir, crime.photoFileName)
 
     private object CrimeRepositoryHolder {
         val crimeRepository = CrimeRepository()
