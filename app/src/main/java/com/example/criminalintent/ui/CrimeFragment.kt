@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -44,6 +45,9 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
+
+    private var photoWidth = 0
+    private var photoHeight = 0
 
     private val viewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -107,6 +111,18 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 }
             }
         )
+
+        crimeImageView.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                if (crimeImageView.width > 0 && crimeImageView.height > 0) {
+                    photoWidth = crimeImageView.width
+                    photoHeight = crimeImageView.height
+                    Log.d(TAG, "final w&h: width: $photoWidth, height: $photoHeight")
+                    crimeImageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }
+        })
     }
 
     override fun onStart() {
@@ -218,10 +234,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private fun updatePhoto() {
         if (photoFile.exists()) {
             crimeImageView.setImageBitmap(
-                PictureUtil.getScaledBitmap(
-                    photoFile.path,
-                    requireActivity()
-                )
+                if (photoWidth > 0 && photoHeight > 0) {
+                    PictureUtil.getScaledBitmap(photoFile.path, photoWidth, photoHeight)
+                } else {
+                    PictureUtil.getScaledBitmap(photoFile.path, requireActivity())
+                }
             )
             crimeImageView.isLongClickable = true
         } else {
