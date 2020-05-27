@@ -23,10 +23,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.criminalintent.CrimeDetailViewModel
-import com.example.criminalintent.utils.DateUtil
 import com.example.criminalintent.R
-import com.example.criminalintent.utils.StringGetter
 import com.example.criminalintent.model.Crime
+import com.example.criminalintent.utils.DateUtil
+import com.example.criminalintent.utils.PictureUtil
+import com.example.criminalintent.utils.StringGetter
 import kotlinx.android.synthetic.main.fragment_crime.view.button_choose_suspect
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
 import kotlinx.android.synthetic.main.fragment_crime.view.button_open_camera
@@ -102,6 +103,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                         photoFile
                     )
                     updateUI()
+                    updatePhoto()
                 }
             }
         )
@@ -157,14 +159,15 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         viewModel.saveCrime(crime)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        revokeExternalAccessToData()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         when {
-            resultCode != Activity.RESULT_OK || requestCode != REQUEST_CODE_CONTACT || data?.data == null -> {
-                super.onActivityResult(requestCode, resultCode, data)
-                return
-            }
-            else -> {
+            resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_CONTACT && data?.data != null -> {
                 val contactUri: Uri = data.data!!
                 val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
                 val cursor = requireActivity().contentResolver.query(
@@ -184,6 +187,14 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                     viewModel.saveCrime(crime)
                 }
             }
+            resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_PHOTO -> {
+                revokeExternalAccessToData()
+                updatePhoto()
+            }
+            else -> {
+                super.onActivityResult(requestCode, resultCode, data)
+                return
+            }
         }
     }
 
@@ -197,6 +208,19 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         chooseSuspectButton.text =
             if (crime.hasSuspect) crime.suspect else getString(R.string.button_choose_suspect)
 
+    }
+
+    private fun updatePhoto() {
+        if (photoFile.exists()) {
+            crimeImageView.setImageBitmap(
+                PictureUtil.getScaledBitmap(
+                    photoFile.path,
+                    requireActivity()
+                )
+            )
+        } else {
+            crimeImageView.setImageDrawable(null)
+        }
     }
 
     private fun showDatePickerFragmentForResult() {
@@ -246,6 +270,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             }
             startActivityForResult(captureImageIntent, REQUEST_CODE_PHOTO)
         }
+    }
+
+    // call this method when photo data is written by external camera app
+    private fun revokeExternalAccessToData() {
+        requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     }
 
     override fun onDateSelected(date: Date) {
