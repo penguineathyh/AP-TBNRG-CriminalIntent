@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -17,6 +18,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -32,19 +34,22 @@ import kotlinx.android.synthetic.main.fragment_crime.view.button_send_crime_repo
 import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
 import kotlinx.android.synthetic.main.fragment_crime.view.image_view_crime_photo
+import java.io.File
 import java.util.Date
 import java.util.UUID
 
 class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
 
     private val viewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
     }
 
-    private lateinit var crimeImageView:ImageView
-    private lateinit var cameraButton:ImageButton
+    private lateinit var crimeImageView: ImageView
+    private lateinit var cameraButton: ImageButton
     private lateinit var crimeTitleEditText: EditText
     private lateinit var crimeDateButton: Button
     private lateinit var crimeSolvedCheckBox: CheckBox
@@ -52,6 +57,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private val pickContactIntent: Intent by lazy {
         Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+    }
+
+    private val captureImageIntent: Intent by lazy {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +94,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             Observer { crime ->
                 Log.d(TAG, "update crime:$crime")
                 crime?.let {
-                    this.crime = crime
+                    this.crime = it
+                    photoFile = viewModel.getPhotoFile(it)
+                    photoUri = FileProvider.getUriForFile(
+                        requireContext(),
+                        "com.example.criminalintent.fileprovider",
+                        photoFile
+                    )
                     updateUI()
                 }
             }
@@ -124,25 +139,17 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             startActivityForResult(pickContactIntent, REQUEST_CODE_CONTACT)
         }
 
-        checkContactsAppExistence()
+        chooseSuspectButton.isEnabled = checkImplicitIntentReceiverExistence(pickContactIntent)
 
         requireView().button_send_crime_report.setOnClickListener {
-            Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, crime.generateReport())
-                putExtra(
-                    Intent.EXTRA_SUBJECT,
-                    StringGetter.getString(R.string.crime_report_subject)
-                )
-            }.also { intent ->
-                startActivity(
-                    Intent.createChooser(
-                        intent,
-                        StringGetter.getString(R.string.text_send_crime_report)
-                    )
-                )
-            }
+            sendCrimeReport()
         }
+
+        cameraButton.setOnClickListener {
+            fireUpCamera()
+        }
+
+        cameraButton.isEnabled = checkImplicitIntentReceiverExistence(captureImageIntent)
     }
 
     override fun onStop() {
@@ -198,11 +205,47 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         fragment.setTargetFragment(this, REQUEST_CODE_DATE)
     }
 
-    private fun checkContactsAppExistence() {
-        val packageManager = requireActivity().packageManager
-        val result =
-            packageManager.resolveActivity(pickContactIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        result ?: run { chooseSuspectButton.isEnabled = false }
+    private fun sendCrimeReport() {
+        Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, crime.generateReport())
+            putExtra(
+                Intent.EXTRA_SUBJECT,
+                StringGetter.getString(R.string.crime_report_subject)
+            )
+        }.also { intent ->
+            startActivity(
+                Intent.createChooser(
+                    intent,
+                    StringGetter.getString(R.string.text_send_crime_report)
+                )
+            )
+        }
+    }
+
+    private fun checkImplicitIntentReceiverExistence(intent: Intent): Boolean {
+        return requireActivity().packageManager.resolveActivity(
+            intent,
+            PackageManager.MATCH_DEFAULT_ONLY
+        ) != null
+    }
+
+    private fun fireUpCamera() {
+        captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+
+        requireActivity().packageManager.queryIntentActivities(
+            captureImageIntent,
+            PackageManager.MATCH_DEFAULT_ONLY
+        ).run {
+            for (cameraActivity in this) {
+                requireActivity().grantUriPermission(
+                    cameraActivity.activityInfo.packageName,
+                    photoUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            }
+            startActivityForResult(captureImageIntent, REQUEST_CODE_PHOTO)
+        }
     }
 
     override fun onDateSelected(date: Date) {
@@ -216,6 +259,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         private const val ARG_CRIME_ID = "crime.id"
         private const val REQUEST_CODE_DATE = 0
         private const val REQUEST_CODE_CONTACT = 1
+        private const val REQUEST_CODE_PHOTO = 2
 
         fun newInstance(crimeId: UUID): CrimeFragment {
             Log.d(TAG, "CrimeFragment Instance: crimeId = $crimeId")
