@@ -3,7 +3,7 @@ package com.example.criminalintent.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.example.criminalintent.SingleThreadPoster
+import com.example.criminalintent.utils.SingleThreadPoster
 import com.example.criminalintent.model.Crime
 import java.io.File
 import java.util.UUID

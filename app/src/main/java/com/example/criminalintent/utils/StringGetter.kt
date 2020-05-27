@@ -1,4 +1,4 @@
-package com.example.criminalintent
+package com.example.criminalintent.utils
 
 import android.content.Context
 import android.content.res.Resources

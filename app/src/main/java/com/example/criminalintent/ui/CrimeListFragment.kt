@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.criminalintent.CrimeListViewModel
-import com.example.criminalintent.DateUtil
+import com.example.criminalintent.utils.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.button_add_crime

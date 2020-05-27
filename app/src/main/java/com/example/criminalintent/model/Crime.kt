@@ -2,9 +2,9 @@ package com.example.criminalintent.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.criminalintent.DateUtil
+import com.example.criminalintent.utils.DateUtil
 import com.example.criminalintent.R
-import com.example.criminalintent.StringGetter
+import com.example.criminalintent.utils.StringGetter
 import java.util.Date
 import java.util.UUID
 

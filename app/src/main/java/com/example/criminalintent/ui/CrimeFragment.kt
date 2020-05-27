@@ -23,9 +23,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.criminalintent.CrimeDetailViewModel
-import com.example.criminalintent.DateUtil
+import com.example.criminalintent.utils.DateUtil
 import com.example.criminalintent.R
-import com.example.criminalintent.StringGetter
+import com.example.criminalintent.utils.StringGetter
 import com.example.criminalintent.model.Crime
 import kotlinx.android.synthetic.main.fragment_crime.view.button_choose_suspect
 import kotlinx.android.synthetic.main.fragment_crime.view.button_crime_date
