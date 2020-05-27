@@ -18,6 +18,8 @@
     <string name="text_report_suspect">the suspect is %s.</string>
     <string name="text_send_crime_report">Send crime report via</string>
 
+    <string name="text_warning_photo_path_miss">Warning: The photo path is missed.</string>
+
     <string name="button_choose_suspect">CHOOSE SUSPECT</string>
     <string name="button_send_crime_report">SEND CRIME REPORT</string>
 </resources>

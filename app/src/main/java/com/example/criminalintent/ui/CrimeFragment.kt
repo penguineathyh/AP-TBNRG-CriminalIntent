@@ -152,6 +152,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
 
         cameraButton.isEnabled = checkImplicitIntentReceiverExistence(captureImageIntent)
+
+        crimeImageView.setOnLongClickListener {
+            showPhotoDetailFragment()
+            true
+        }
     }
 
     override fun onStop() {
@@ -218,8 +223,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                     requireActivity()
                 )
             )
+            crimeImageView.isLongClickable = true
         } else {
             crimeImageView.setImageDrawable(null)
+            crimeImageView.isLongClickable = false
         }
     }
 
@@ -275,6 +282,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     // call this method when photo data is written by external camera app
     private fun revokeExternalAccessToData() {
         requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    }
+
+    private fun showPhotoDetailFragment() {
+        PhotoDetailFragment.showPhotoDetail(requireFragmentManager(), photoFile.path)
     }
 
     override fun onDateSelected(date: Date) {
