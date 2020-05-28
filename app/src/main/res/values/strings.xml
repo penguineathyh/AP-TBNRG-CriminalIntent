@@ -10,7 +10,7 @@
 
     <string name="menu_item_new_crime">New Crime</string>
 
-    <string name="text_no_crime">There are no crimes. You can add the first.</string>
+    <string name="text_no_crime" translatable="false">There are no crimes. You can add the first.</string>
 
     <string name="text_report_solved">The case is solved</string>
     <string name="text_report_unsolved">The case is not solved</string>
@@ -18,7 +18,7 @@
     <string name="text_report_suspect">the suspect is %s.</string>
     <string name="text_send_crime_report">Send crime report via</string>
 
-    <string name="text_warning_photo_path_miss">Warning: The photo path is missed.</string>
+    <string name="text_warning_photo_path_miss" translatable="false">Warning: The photo path is missed.</string>
 
     <string name="button_choose_suspect">CHOOSE SUSPECT</string>
     <string name="button_send_crime_report">SEND CRIME REPORT</string>
