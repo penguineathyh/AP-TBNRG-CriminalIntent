@@ -10,6 +10,9 @@
         android:name="com.example.criminalintent.ui.CrimeFragment"
         android:label="@string/appbar_label_crime"
         tool:layout="@layout/fragment_crime">
+        <argument
+            android:name="crimeId"
+            app:argType="java.util.UUID" />
         <action
             android:id="@+id/action_crime_to_date_picker"
             app:destination="@id/dest_date_picker" />

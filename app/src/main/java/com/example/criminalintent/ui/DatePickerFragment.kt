@@ -4,25 +4,30 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.navigation.navGraphViewModels
+import com.example.criminalintent.CrimeDetailViewModel
+import com.example.criminalintent.R
+import com.example.criminalintent.model.Crime
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 
 class DatePickerFragment : DialogFragment() {
 
+    private lateinit var crime: Crime
+
+    private val viewModel: CrimeDetailViewModel by navGraphViewModels(R.id.crime_navigation_graph)
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val date = requireArguments().getSerializable(ARG_CRIME_DATE) as Date
-        val calendar = Calendar.getInstance().also {
-            it.time = date
-        }
+        val calendar = Calendar.getInstance()
         val initialYear = calendar.get(Calendar.YEAR)
         val initialMonth = calendar.get(Calendar.MONTH)
         val initialDay = calendar.get(Calendar.DAY_OF_MONTH)
 
         val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-            val resultDate = GregorianCalendar(year, month, dayOfMonth).time
-            targetFragment?.let { (it as? Callbacks)?.onDateSelected(resultDate) }
+            val resultDate: Date = GregorianCalendar(year, month, dayOfMonth).time
+            crime = crime.copy(date = resultDate)
         }
         return DatePickerDialog(
             requireContext(),
@@ -33,26 +38,31 @@ class DatePickerFragment : DialogFragment() {
         )
     }
 
-    interface Callbacks {
-        fun onDateSelected(date: Date)
+    override fun onStart() {
+        super.onStart()
+        viewModel.crimeLiveData.observe(
+            this,
+            Observer { crime ->
+                crime?.let {
+                    this.crime = it
+                    updateDialog()
+                }
+            }
+        )
     }
 
-    companion object {
+    override fun onStop() {
+        super.onStop()
+        viewModel.saveCrime(crime)
+    }
 
-        private const val TAG = "date.picker.dialog"
-        private const val ARG_CRIME_DATE = "crime.date"
-
-        fun showDialogWithGivenDate(
-            fragmentManager: FragmentManager,
-            date: Date
-        ): DatePickerFragment {
-            val fragment = DatePickerFragment()
-            val args = Bundle().also {
-                it.putSerializable(ARG_CRIME_DATE, date)
-                fragment.arguments = it
-            }
-            fragment.show(fragmentManager, TAG)
-            return fragment
-        }
+    private fun updateDialog() {
+        val dialog = requireDialog() as DatePickerDialog
+        val calendar = Calendar.getInstance().also { it.time = crime.date }
+        dialog.updateDate(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
     }
 }

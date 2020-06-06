@@ -13,13 +13,14 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.criminalintent.CrimeListViewModel
-import com.example.criminalintent.utils.DateUtil
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
+import com.example.criminalintent.utils.DateUtil
 import kotlinx.android.synthetic.main.fragment_crime_list.view.button_add_crime
 import kotlinx.android.synthetic.main.fragment_crime_list.view.rv_crime_list
 import kotlinx.android.synthetic.main.fragment_crime_list.view.text_view_no_crimes
@@ -27,16 +28,6 @@ import java.util.UUID
 import kotlin.properties.Delegates
 
 class CrimeListFragment : Fragment() {
-
-    /**
-     * Let hosting activity implement this.
-     * By this, hosting activity can have its own inner fragment managing business.
-     */
-    interface Callbacks {
-        fun onCrimeSelected(crimeId: UUID)
-    }
-
-    private var callbacks: Callbacks? = null
 
     private val viewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
@@ -85,16 +76,6 @@ class CrimeListFragment : Fragment() {
         )
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        callbacks = activity as? Callbacks
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        callbacks = null
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_crime_list, menu)
@@ -113,7 +94,7 @@ class CrimeListFragment : Fragment() {
     private fun createCrimeAndGoToDetail() {
         val crime = Crime()
         viewModel.addCrime(crime)
-        callbacks?.onCrimeSelected(crime.id)
+        toCrime(crime.id)
     }
 
     private fun updateNoCrimeNotification(noCrime: Boolean) {
@@ -128,6 +109,12 @@ class CrimeListFragment : Fragment() {
         }
     }
 
+    private fun toCrime(id: UUID) {
+        findNavController().navigate(
+            CrimeListFragmentDirections.actionCrimeListToCrime(id)
+        )
+    }
+
     private inner class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         var crimes: List<Crime> by Delegates.observable(listOf()) { _, oldValue, newValue ->
@@ -137,9 +124,10 @@ class CrimeListFragment : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return ViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_crime_list, parent, false),
-                callbacks
-            )
+                    .inflate(R.layout.item_crime_list, parent, false)
+            ) {
+                toCrime(it)
+            }
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -151,7 +139,7 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private class ViewHolder(view: View, callbacks: Callbacks?) :
+    private class ViewHolder(view: View, callback: ((UUID) -> Unit)?) :
         RecyclerView.ViewHolder(view) {
         private val crimeTitle: TextView = view.findViewById(R.id.text_view_item_crime_title)
         private val crimeDate: TextView = view.findViewById(R.id.text_view_item_crime_date)
@@ -163,7 +151,7 @@ class CrimeListFragment : Fragment() {
 
         init {
             view.setOnClickListener {
-                callbacks?.onCrimeSelected(crimeId)
+                callback?.invoke(crimeId)
             }
         }
 
@@ -191,10 +179,5 @@ class CrimeListFragment : Fragment() {
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition] == newList[newItemPosition]
         }
-    }
-
-    companion object {
-
-        fun newInstance(): CrimeListFragment = CrimeListFragment()
     }
 }

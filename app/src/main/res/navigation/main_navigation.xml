@@ -14,6 +14,10 @@
         tool:layout="@layout/fragment_crime_list">
         <action
             android:id="@+id/action_crime_list_to_crime"
-            app:destination="@id/crime_navigation_graph" />
+            app:destination="@id/crime_navigation_graph" >
+            <argument
+                android:name="crimeId"
+                app:argType="java.util.UUID"/>
+        </action>
     </fragment>
 </navigation>

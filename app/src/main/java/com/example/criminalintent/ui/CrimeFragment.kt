@@ -22,7 +22,9 @@ import android.widget.ImageView
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import com.example.criminalintent.CrimeDetailViewModel
 import com.example.criminalintent.R
 import com.example.criminalintent.model.Crime
@@ -37,10 +39,8 @@ import kotlinx.android.synthetic.main.fragment_crime.view.checkbox_crime_solved
 import kotlinx.android.synthetic.main.fragment_crime.view.edit_text_crime_title
 import kotlinx.android.synthetic.main.fragment_crime.view.image_view_crime_photo
 import java.io.File
-import java.util.Date
-import java.util.UUID
 
-class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
+class CrimeFragment : Fragment() {
 
     private lateinit var crime: Crime
     private lateinit var photoFile: File
@@ -49,9 +49,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private var photoWidth = 0
     private var photoHeight = 0
 
-    private val viewModel: CrimeDetailViewModel by lazy {
-        ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
-    }
+    private val viewModel: CrimeDetailViewModel by navGraphViewModels(R.id.crime_navigation_graph)
+    private val args: CrimeFragmentArgs by navArgs()
 
     private lateinit var crimeImageView: ImageView
     private lateinit var cameraButton: ImageButton
@@ -70,7 +69,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val crimeId = requireArguments().getSerializable(ARG_CRIME_ID) as UUID
+        val crimeId = args.crimeId
         viewModel.loadCrime(crimeId)
     }
 
@@ -150,7 +149,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
 
         crimeDateButton.setOnClickListener {
-            showDatePickerFragmentForResult()
+            showDatePickerFragment()
         }
 
         chooseSuspectButton.setOnClickListener {
@@ -247,10 +246,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
     }
 
-    private fun showDatePickerFragmentForResult() {
-        val fragment =
-            DatePickerFragment.showDialogWithGivenDate(requireFragmentManager(), crime.date)
-        fragment.setTargetFragment(this, REQUEST_CODE_DATE)
+    private fun showDatePickerFragment() {
+        findNavController().navigate(R.id.dest_date_picker)
     }
 
     private fun sendCrimeReport() {
@@ -302,29 +299,14 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     }
 
     private fun showPhotoDetailFragment() {
-        PhotoDetailFragment.showPhotoDetail(requireFragmentManager(), photoFile.path)
-    }
-
-    override fun onDateSelected(date: Date) {
-        crime = crime.copy(date = date)
-        updateUI()
+        findNavController().navigate(R.id.dest_photo_detail)
     }
 
     companion object {
 
         private const val TAG = "crime.fragment"
-        private const val ARG_CRIME_ID = "crime.id"
-        private const val REQUEST_CODE_DATE = 0
         private const val REQUEST_CODE_CONTACT = 1
         private const val REQUEST_CODE_PHOTO = 2
-
-        fun newInstance(crimeId: UUID): CrimeFragment {
-            Log.d(TAG, "CrimeFragment Instance: crimeId = $crimeId")
-            val args = Bundle().also {
-                it.putSerializable(ARG_CRIME_ID, crimeId)
-            }
-            return CrimeFragment().also { it.arguments = args }
-        }
     }
 
 }

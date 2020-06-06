@@ -7,23 +7,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.navigation.navGraphViewModels
+import com.example.criminalintent.CrimeDetailViewModel
 import com.example.criminalintent.R
 import com.example.criminalintent.utils.PictureUtil
 import kotlinx.android.synthetic.main.fragment_photo_detail.view.image_view_photo
 
 class PhotoDetailFragment : DialogFragment() {
 
+    private val viewModel: CrimeDetailViewModel by navGraphViewModels(R.id.crime_navigation_graph)
     private lateinit var photoPath: String
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        photoPath = requireArguments().getString(ARG_PHOTO_PATH, "") as String
-        if (photoPath == "") {
-            Toast.makeText(context, R.string.text_warning_photo_path_miss, Toast.LENGTH_SHORT)
-                .show()
-            dismiss()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,30 +27,33 @@ class PhotoDetailFragment : DialogFragment() {
         return inflater.inflate(R.layout.fragment_photo_detail, container, false)
     }
 
-    override fun onStart() {
-        super.onStart()
-        requireView().image_view_photo.setImageBitmap(
-            PictureUtil.getScaledBitmap(photoPath, requireActivity())
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.crimeLiveData.observe(
+            viewLifecycleOwner,
+            Observer { crime->
+                crime?.let {
+                    photoPath = viewModel.getPhotoFile(it).path
+                    if (checkPhotoPathValidity()){
+                        updatePhotoView()
+                    }
+                }
+            }
         )
     }
 
-    companion object {
+    private fun checkPhotoPathValidity():Boolean{
+        return if (photoPath == "") {
+            Toast.makeText(context, R.string.text_warning_photo_path_miss, Toast.LENGTH_SHORT)
+                .show()
+            dismiss()
+            false
+        }else true
+    }
 
-        private const val TAG = "photo.detail.dialog"
-        private const val ARG_PHOTO_PATH = "photo.path"
-
-        fun showPhotoDetail(
-            fragmentManager: FragmentManager,
-            path: String
-        ): PhotoDetailFragment {
-            val fragment = PhotoDetailFragment()
-            val bundle = Bundle().apply {
-                putString(ARG_PHOTO_PATH, path)
-            }.also {
-                fragment.arguments = it
-            }
-            fragment.show(fragmentManager, TAG)
-            return fragment
-        }
+    private fun updatePhotoView(){
+        requireView().image_view_photo.setImageBitmap(
+            PictureUtil.getScaledBitmap(photoPath, requireActivity())
+        )
     }
 }
