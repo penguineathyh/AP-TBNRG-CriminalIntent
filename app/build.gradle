@@ -25,10 +25,14 @@ android {
         }
     }
 
-    kapt{
-        arguments{
+    kapt {
+        arguments {
             arg("room.schemaLocation", "$projectDir/schemas/")
         }
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
 }
