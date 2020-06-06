@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/crime_navigation_graph"
+    app:startDestination="@id/dest_crime">
+
+    <fragment
+        android:id="@+id/dest_crime"
+        android:name="com.example.criminalintent.ui.CrimeFragment"
+        android:label="@string/appbar_label_crime"
+        tool:layout="@layout/fragment_crime">
+        <action
+            android:id="@+id/action_crime_to_date_picker"
+            app:destination="@id/dest_date_picker" />
+        <action
+            android:id="@+id/action_crime_to_photo_detail"
+            app:destination="@id/dest_photo_detail" />
+    </fragment>
+    <dialog
+        android:id="@+id/dest_date_picker"
+        android:name="com.example.criminalintent.ui.DatePickerFragment"
+        android:label="DatePickerFragment" />
+    <dialog
+        android:id="@+id/dest_photo_detail"
+        android:name="com.example.criminalintent.ui.PhotoDetailFragment"
+        android:label="PhotoDetailFragment" />
+
+</navigation>

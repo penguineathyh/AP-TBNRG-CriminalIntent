@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">IntentoCriminal</string>
+    <string name="appbar_label_crime_list">Crime List</string>
+    <string name="appbar_label_crime">Crime Detail</string>
     <string name="crime_title_hint">Introduzca un título para el crimen.</string>
     <string name="crime_title_label">Título</string>
     <string name="crime_details_label">Detalles</string>

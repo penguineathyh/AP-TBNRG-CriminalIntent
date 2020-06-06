@@ -195,8 +195,6 @@ class CrimeListFragment : Fragment() {
 
     companion object {
 
-        const val TAG_CRIME_LIST_FRAGMENT = "crime.list.fragment"
-
         fun newInstance(): CrimeListFragment = CrimeListFragment()
     }
 }

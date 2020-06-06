@@ -13,10 +13,6 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        supportFragmentManager.add(
-            R.id.fragment_container,
-            { CrimeListFragment.newInstance() }
-        )
     }
 
     override fun onCrimeSelected(crimeId: UUID) {
